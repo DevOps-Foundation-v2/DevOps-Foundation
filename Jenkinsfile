@@ -12,7 +12,7 @@ pipeline {
             checkout scm // clonacion de codigo en nodo
             withCredentials([string(credentialsId: 'token-slack', variable: 'TOKENPAT')]) {
             withEnv(["URL=${env.BUILD_URL}"]) {
-                sh('curl -d "text=SE REPORTA QUE: \n Comienza la ejecucion de pipeline \n $URL" -d "channel=devops-pipeline" -H "Authorization: Bearer $TOKENPAT" -X POST https://slack.com/api/chat.postMessage')
+                sh('curl -d "text=SE REPORTA QUE: \n Comienza la ejecucion de pipeline \n $URL" -d "channel=pipelines-devops" -H "Authorization: Bearer $TOKENPAT" -X POST https://slack.com/api/chat.postMessage')
             }
           }
         }
@@ -21,10 +21,8 @@ pipeline {
        stage('JIRA') {
          steps {
              withCredentials([string(credentialsId: 'token-jira', variable: 'JIRAPAT')]) {
-             withEnv(['JIRA_SITE=https://fundamentosdevops.atlassian.net']) {
                 //jiraTransitionIssue idOrKey: 'DF-1', input: env.transitionInput
                  sh('set -x; curl -u clagos353@gmail.com:$JIRAPAT -X POST --data "{\\"transition\\":{\\"id\\":\\"3\\"}}" -H "Content-Type: application/json" "https://fundamentosdevops.atlassian.net/rest/api/3/issue/DF-1/transitions"')
-                }
             }
          }
       }
@@ -38,7 +36,7 @@ pipeline {
                      //sh './mvnw clean install'
                 }catch(all){
                     withEnv(["URL=${env.BUILD_URL}"]) {
-                        sh('curl -d "text=SE REPORTA QUE: \n Pipeline ha fallado en Etapa de Build \n $URL" -d "channel=devops-pipeline" -H "Authorization: Bearer xoxb-3797904255923-3909536351217-Cyr3dj1QXDmCJyRGpk9Lo1on" -X POST https://slack.com/api/chat.postMessage')
+                        sh('curl -d "text=SE REPORTA QUE: \n Pipeline ha fallado en Etapa de Build \n $URL" -d "channel=pipeline-devops" -H "Authorization: Bearer xoxb-3797904255923-3909536351217-Cyr3dj1QXDmCJyRGpk9Lo1on" -X POST https://slack.com/api/chat.postMessage')
                     }
                 }
             }
@@ -76,12 +74,10 @@ pipeline {
          steps {
             figlet 'DEPLOY'
             withCredentials([string(credentialsId: 'token-jira', variable: 'JIRAPAT')]) {
-             withEnv(['JIRA_SITE=https://fundamentosdevops.atlassian.net']) {
                 //jiraTransitionIssue idOrKey: 'DF-1', input: env.transitionInput
-                 sh('set -x; curl -u clagos353@gmail.com:$JIRAPAT -X POST --data "{\\"transition\\":{\\"id\\":\\"2\\"}}" -H "Content-Type: application/json" "https://fundamentosdevops.atlassian.net/rest/api/3/issue/DF-1/transitions"')
-                }
+                sh('set -x; curl -u clagos353@gmail.com:$JIRAPAT -X POST --data "{\\"transition\\":{\\"id\\":\\"2\\"}}" -H "Content-Type: application/json" "https://fundamentosdevops.atlassian.net/rest/api/3/issue/DF-1/transitions"')
             }
-            }
+          }
         }
         
    }
