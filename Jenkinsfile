@@ -10,7 +10,12 @@ pipeline {
          steps {
             figlet 'SOURCE-CONTROL-MANAGEMENT'
             checkout scm // clonacion de codigo en nodo
-         }
+            withCredentials([string(credentialsId: 'token-slack', variable: 'TOKENPAT')]) {
+            withEnv(["URL=${env.BUILD_URL}"]) {
+                sh('curl -d "text=SE REPORTA QUE: \n Comienza la ejecucion de pipeline \n $URL" -d "channel=test" -H "Authorization: Bearer $TOKENPAT" -X POST https://slack.com/api/chat.postMessage')
+            }
+          }
+        }
       }
         
        stage('JIRA') {
@@ -27,9 +32,16 @@ pipeline {
       stage('BUILD') {
          steps {
             figlet 'BUILD'
-            sh 'set +x; chmod 777 mvnw'
-            sh './mvnw clean install'
-          //archiveArtifacts artifacts: "build/libs/testing-web-*.jar"
+            script {
+                try {
+                     sh 'set +x; chmod 777 mvnw'
+                     //sh './mvnw clean install'
+                }catch(all){
+                    withEnv(["URL=${env.BUILD_URL}"]) {
+                        sh('curl -d "text=SE REPORTA QUE: \n Pipeline ha fallado en Etapa de Build \n $URL" -d "channel=test" -H "Authorization: Bearer xoxb-3797904255923-3909536351217-Cyr3dj1QXDmCJyRGpk9Lo1on" -X POST https://slack.com/api/chat.postMessage')
+                    }
+                }
+            }
          }
       }
         
@@ -41,15 +53,34 @@ pipeline {
             }
          }
       }
+      
+      stage('QA') {
+         steps {
+            figlet 'QA'
+            withCredentials([string(credentialsId: 'token-jira', variable: 'JIRAPAT')]) {
+                 sh('set -x; curl -u clagos353@gmail.com:$JIRAPAT -X POST --data "{\\"transition\\":{\\"id\\":\\"4\\"}}" -H "Content-Type: application/json" "https://fundamentosdevops.atlassian.net/rest/api/3/issue/DF-1/transitions"')
+            }
+            input message: 'Pruebas QA'
+         }
+      }
         
  
         
       stage('Build Image') {
          steps {
             figlet 'IMAGE'
-          //sh '${DOCKER EXEC} build .'
-            //sh "$DOCKER_EXEC images"
-          //sh "$DOCKER_EXEC push clagosu/spring-clinic:$currentBuild.number"
+            }
+        }
+        
+        stage('DEPLOY') {
+         steps {
+            figlet 'DEPLOY'
+            withCredentials([string(credentialsId: 'token-jira', variable: 'JIRAPAT')]) {
+             withEnv(['JIRA_SITE=https://fundamentosdevops.atlassian.net']) {
+                //jiraTransitionIssue idOrKey: 'DF-1', input: env.transitionInput
+                 sh('set -x; curl -u clagos353@gmail.com:$JIRAPAT -X POST --data "{\\"transition\\":{\\"id\\":\\"2\\"}}" -H "Content-Type: application/json" "https://fundamentosdevops.atlassian.net/rest/api/3/issue/DF-1/transitions"')
+                }
+            }
             }
         }
         
