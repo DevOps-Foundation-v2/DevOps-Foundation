@@ -12,7 +12,7 @@ pipeline {
             checkout scm // clonacion de codigo en nodo
             withCredentials([string(credentialsId: 'token-slack', variable: 'TOKENPAT')]) {
             withEnv(["URL=${env.BUILD_URL}"]) {
-                sh('curl -d "text=SE REPORTA QUE: \n Comienza la ejecucion de pipeline \n $URL" -d "channel=test" -H "Authorization: Bearer $TOKENPAT" -X POST https://slack.com/api/chat.postMessage')
+                sh('curl -d "text=SE REPORTA QUE: \n Comienza la ejecucion de pipeline \n $URL" -d "channel=devops-pipeline" -H "Authorization: Bearer $TOKENPAT" -X POST https://slack.com/api/chat.postMessage')
             }
           }
         }
@@ -38,7 +38,7 @@ pipeline {
                      //sh './mvnw clean install'
                 }catch(all){
                     withEnv(["URL=${env.BUILD_URL}"]) {
-                        sh('curl -d "text=SE REPORTA QUE: \n Pipeline ha fallado en Etapa de Build \n $URL" -d "channel=test" -H "Authorization: Bearer xoxb-3797904255923-3909536351217-Cyr3dj1QXDmCJyRGpk9Lo1on" -X POST https://slack.com/api/chat.postMessage')
+                        sh('curl -d "text=SE REPORTA QUE: \n Pipeline ha fallado en Etapa de Build \n $URL" -d "channel=devops-pipeline" -H "Authorization: Bearer xoxb-3797904255923-3909536351217-Cyr3dj1QXDmCJyRGpk9Lo1on" -X POST https://slack.com/api/chat.postMessage')
                     }
                 }
             }
