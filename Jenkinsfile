@@ -3,7 +3,6 @@ pipeline {
     environment {
        DOCKER = tool 'docker' 
        DOCKER_EXEC = '$DOCKER/docker'
-       transitionInput = "[transition:[id:'5']]"
     }
     stages {
       
@@ -16,10 +15,10 @@ pipeline {
         
        stage('JIRA') {
          steps {
-             withCredentials([string(credentialsId: 'jira-token', variable: 'JIRAPAT')]) {
+             withCredentials([string(credentialsId: 'token-jira', variable: 'JIRAPAT')]) {
              withEnv(['JIRA_SITE=https://fundamentosdevops.atlassian.net']) {
                 //jiraTransitionIssue idOrKey: 'DF-1', input: env.transitionInput
-                 //sh('set -x; curl -u $JIRAPAT: -X POST --data "{"transition":{"id":'31'}}" -H "Content-Type: application/json" http://jira/rest/api/3/issue/DF-1/transitions')
+                 sh('set -x; curl -u clagos353@gmail.com:$JIRAPAT -X POST --data "{\\"transition\\":{\\"id\\":\\"3\\"}}" -H "Content-Type: application/json" "https://fundamentosdevops.atlassian.net/rest/api/3/issue/DF-1/transitions"')
                 }
             }
          }
