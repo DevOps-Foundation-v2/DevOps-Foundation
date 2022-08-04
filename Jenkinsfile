@@ -16,9 +16,12 @@ pipeline {
         
        stage('JIRA') {
          steps {
+             withCredentials([string(credentialsId: 'jira-token', variable: 'JIRAPAT')]) {
              withEnv(['JIRA_SITE=https://fundamentosdevops.atlassian.net']) {
-                jiraTransitionIssue idOrKey: 'DF-1', input: env.transitionInput
-             }
+                //jiraTransitionIssue idOrKey: 'DF-1', input: env.transitionInput
+                 sh("set -x; curl -u $JIRAPAT: -X POST --data '{"transition":{"id”:"31"}}' -H "Content-Type: application/json" http://jira/rest/api/3/issue/DF-1/transitions")
+                }
+            }
          }
       }
         
