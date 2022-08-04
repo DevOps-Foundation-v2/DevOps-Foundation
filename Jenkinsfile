@@ -16,7 +16,9 @@ pipeline {
         
        stage('JIRA') {
          steps {
-            jiraTransitionIssue idOrKey: 'DF-1', input: env.transitionInput
+             withEnv(['JIRA_SITE=https://fundamentosdevops.atlassian.net']) {
+                jiraTransitionIssue idOrKey: 'DF-1', input: env.transitionInput
+             }
          }
       }
         
