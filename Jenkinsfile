@@ -3,7 +3,7 @@ pipeline {
     environment {
        DOCKER = tool 'docker' 
        DOCKER_EXEC = '$DOCKER/docker'
-       SCA = '/Users/clagosu/Documents/dependency-check/bin/dependency-check.sh'
+       transitionInput = "[transition:[id:'5']]"
     }
     stages {
       
@@ -16,8 +16,7 @@ pipeline {
         
        stage('JIRA') {
          steps {
-            def transitionInput = "[transition:[id:'5']]"
-            jiraTransitionIssue idOrKey: 'DF-1', input: transitionInput
+            jiraTransitionIssue idOrKey: 'DF-1', input: env.transitionInput
          }
       }
         
