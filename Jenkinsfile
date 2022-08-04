@@ -14,11 +14,18 @@ pipeline {
          }
       }
         
+       stage('JIRA') {
+         steps {
+            def transitionInput = "[transition:[id:'5']]"
+            jiraTransitionIssue idOrKey: 'DF-1', input: transitionInput
+         }
+      }
+        
       stage('BUILD') {
          steps {
             figlet 'BUILD'
-            sh 'set +x; chmod 777 gradlew'
-            sh './gradlew clean build'
+            sh 'set +x; chmod 777 mvnw'
+            sh './mvnw clean install'
           //archiveArtifacts artifacts: "build/libs/testing-web-*.jar"
          }
       }
@@ -27,7 +34,7 @@ pipeline {
          steps {
             withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONARPAT')]) {
                  figlet 'SAST-SONARCLOUD'
-                 sh('set +x; ./gradlew sonarqube -Dsonar.login=$SONARPAT -Dsonar.branch.name=feature-jenkins')
+                 //sh('set +x; ./gradlew sonarqube -Dsonar.login=$SONARPAT -Dsonar.branch.name=feature-jenkins')
             }
          }
       }
